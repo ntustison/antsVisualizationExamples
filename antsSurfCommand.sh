@@ -15,6 +15,10 @@ OUTPUT_GM_SMOOTH=${OUTPUT_DIRECTORY}/grayMatterSmoothMask.nii.gz
 OUTPUT_THICKNESS_RGB=${OUTPUT_DIRECTORY}/thicknessRgb.nii.gz
 OUTPUT_LOOKUP_TABLE=${OUTPUT_DIRECTORY}/lookupTable.csv
 OUTPUT_REGION=${OUTPUT_DIRECTORY}/regionMask.nii.gz
+OUTPUT_REGION2=${OUTPUT_DIRECTORY}/regionMask2.nii.gz
+
+OUTPUT_THICKNESS_PNG=${OUTPUT_DIRECTORY}/OAS1_0061_MR1_mpr_n4_anon_sbj_111CorticalThickness.png
+OUTPUT_CAUDAL_THICKNESS_PNG=${OUTPUT_DIRECTORY}/OAS1_0061_MR1_mpr_n4_anon_sbj_111CorticalThickness2.png
 
 echo "Thresholding out gray matter."
 ${ANTSPATH}/ThresholdImage 3 $INPUT_SEGMENTATION $OUTPUT_GM 2 4 1 0
@@ -41,14 +45,20 @@ ${ANTSPATH}/antsSurf -d 3 \
                      -b $OUTPUT_LOOKUP_TABLE
 
 
-echo "Show thickness over the right caudal middle frontal (label 2003)"
+echo "Show thickness over the left and right caudal middle frontal (labels 1003 & 2003)"
 ${ANTSPATH}/ThresholdImage 3 $INPUT_JLF $OUTPUT_REGION 2003 2003 1 0
 ${ANTSPATH}/SmoothImage 3 $OUTPUT_REGION 1.0 $OUTPUT_REGION
 ${ANTSPATH}/ThresholdImage 3 $OUTPUT_REGION $OUTPUT_REGION 0.1 10 1 0
 
+${ANTSPATH}/ThresholdImage 3 $INPUT_JLF $OUTPUT_REGION2 1003 1003 1 0
+${ANTSPATH}/SmoothImage 3 $OUTPUT_REGION2 1.0 $OUTPUT_REGION2
+${ANTSPATH}/ThresholdImage 3 $OUTPUT_REGION2 $OUTPUT_REGION2 0.1 10 1 0
+
+
 ${ANTSPATH}/antsSurf -d 3 \
                      -s [${OUTPUT_GM},255x255x255] \
                      -f [${OUTPUT_THICKNESS_RGB},${OUTPUT_REGION},0.75] \
+                     -f [${OUTPUT_THICKNESS_RGB},${OUTPUT_REGION2},0.75] \
                      -i 25 \
                      -a 0.03 \
                      -d [0x0x0,192x255x62] \
